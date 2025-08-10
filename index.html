@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Console Messenger</title>
+    <style>
+        :root {
+            --white: #ffffff;
+            --blue: #00BFFF;
+            --green: #00FF7F;
+            --purple: #9370DB;
+            --gold: #FFD700;
+            --red: #FF4500;
+            --matrix-green: #00ff41;
+            --dark-bg: #0a0a12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            height: 100vh;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 255, 65, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 65, 0.05) 0%, transparent 20%);
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px 20px;
+            background: linear-gradient(90deg, #1a1a2e, #16213e);
+            border-radius: 8px;
+            border: 1px solid #00ff41;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-text {
+            font-weight: bold;
+            font-size: 1.5em;
+            background: linear-gradient(90deg, #00BFFF, var(--matrix-green));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95em;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--matrix-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--matrix-green);
+        }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            height: calc(100% - 60px);
+        }
+        
+        .terminal-container {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            background: rgba(20, 20, 30, 0.8);
+            border-radius: 8px;
+            border: 1px solid #333;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+        }
+        
+        .console-output {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            font-size: 1.1em;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-color: rgba(10, 10, 15, 0.9);
+        }
+        
+        .prompt {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(15, 15, 25, 0.9);
+            border-top: 1px solid #333;
+        }
+        
+        .prompt-user {
+            margin-right: 10px;
+            font-weight: bold;
+            white-space: nowrap;
+            min-width: 160px;
+        }
+        
+        .prompt-input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            width: 100%;
+            outline: none;
+            caret-color: var(--matrix-green);
+        }
+        
+        .sidebar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 250px;
+        }
+        
+        .panel {
+            background: rgba(20, 20, 30, 0.8);
+            border-radius: 8px;
+            border: 1px solid #333;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .panel-title {
+            color: var(--matrix-green);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.3);
+            font-size: 1.2em;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .user-level {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(30, 30, 50, 0.5);
+            border-radius: 5px;
+        }
+        
+        .level-display {
+            font-size: 1.3em;
+        }
+        
+        .level-progress {
+            flex: 1;
+            height: 10px;
+            background: rgba(50, 50, 70, 0.7);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .level-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00BFFF, var(--matrix-green));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .groups-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .group-item {
+            padding: 10px;
+            background: rgba(30, 30, 50, 0.5);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .group-item:hover {
+            background: rgba(40, 40, 70, 0.7);
+            border-left-color: var(--matrix-green);
+        }
+        
+        .group-item.active {
+            border-left-color: var(--matrix-green);
+            background: rgba(40, 40, 70, 0.7);
+        }
+        
+        .group-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .group-id {
+            font-size: 0.9em;
+            color: #aaa;
+            font-family: monospace;
+        }
+        
+        /* Стили сообщений */
+        .message {
+            line-height: 1.4;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .timestamp {
+            color: #777;
+            margin-right: 10px;
+            font-size: 0.85em;
+        }
+        
+        .username {
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .command {
+            color: #00BFFF;
+        }
+        
+        .system {
+            color: #9370DB;
+            font-style: italic;
+        }
+        
+        .error {
+            color: #FF4500;
+            animation: blink 0.5s 3;
+        }
+        
+        @keyframes blink {
+            50% { background-color: rgba(255, 69, 0, 0.2); }
+        }
+        
+        .level-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        
+        .level-0 { background: #555; color: var(--white); }
+        .level-1 { background: #1e3a5f; color: var(--blue); }
+        .level-2 { background: #1a472a; color: var(--green); }
+        .level-3 { background: #4b2c69; color: var(--purple); }
+        .level-4 { background: #8b7500; color: var(--gold); }
+        .level-5 { background: #8b2500; color: var(--red); }
+        .level-6 { 
+            background: linear-gradient(90deg, #ff0000, #ff8000, #ffff00, #80ff00, #00ffff, #0080ff, #8000ff);
+            color: white;
+            position: relative;
+            overflow: hidden;
+            animation: rainbow-flow 3s linear infinite;
+            background-size: 200% 200%;
+        }
+        
+        @keyframes rainbow-flow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+        
+        .private-message {
+            background: rgba(40, 40, 80, 0.3);
+            border-left: 3px solid #00BFFF;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .pm-indicator {
+            color: #00BFFF;
+            font-weight: bold;
+        }
+        
+        .achievement {
+            animation: highlight 2s;
+        }
+        
+        @keyframes highlight {
+            0% { 
+                background-color: rgba(255, 215, 0, 0.5); 
+                transform: scale(1.02);
+            }
+            100% { 
+                background-color: transparent; 
+                transform: scale(1);
+            }
+        }
+        
+        .user-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .user-tag {
+            background: rgba(30, 30, 50, 0.7);
+            padding: 6px 12px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(0, 255, 65, 0.3);
+        }
+        
+        .user-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .online { background: var(--matrix-green); box-shadow: 0 0 3px var(--matrix-green); }
+        .offline { background: #FF4500; }
+        .away { background: #FFD700; }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(30, 30, 50, 0.7);
+            border-radius: 15px;
+            margin: 5px 0;
+            width: fit-content;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--matrix-green);
+            border-radius: 50%;
+            margin: 0 3px;
+            opacity: 0.6;
+        }
+        
+        .typing-dot:nth-child(1) { animation: typing 1.2s infinite; }
+        .typing-dot:nth-child(2) { animation: typing 1.2s infinite 0.2s; }
+        .typing-dot:nth-child(3) { animation: typing 1.2s infinite 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+            30% { transform: translateY(-5px); opacity: 1; }
+        }
+        
+        .group-info {
+            background: rgba(20, 40, 60, 0.4);
+            padding: 12px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 3px solid var(--matrix-green);
+        }
+        
+        .channel-name {
+            color: var(--matrix-green);
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .matrix-code {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 3px 8px;
+            border-radius: 3px;
+            color: var(--matrix-green);
+        }
+        
+        .message-content {
+            display: inline;
+            overflow: hidden;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+        
+        .message-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(30, 30, 40, 0.95);
+            padding: 12px 18px;
+            border-radius: 8px;
+            border-left: 4px solid var(--matrix-green);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+            transform: translateX(120%);
+            transition: transform 0.4s ease;
+            z-index: 100;
+            max-width: 350px;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            border-left-color: #FF4500;
+        }
+        
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .notification-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--matrix-green);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .notification.error .notification-dot {
+            background: #FF4500;
+        }
+        
+        .connect-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .connect-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 65, 0.4);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            flex: 1;
+        }
+        
+        .connect-button {
+            background: rgba(0, 100, 0, 0.6);
+            color: white;
+            border: 1px solid var(--matrix-green);
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+        
+        .connect-button:hover {
+            background: rgba(0, 150, 0, 0.7);
+            box-shadow: 0 0 8px rgba(0, 255, 65, 0.4);
+        }
+        
+        .security-shield {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(30, 30, 50, 0.7);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid var(--matrix-green);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+        
+        .shield-icon {
+            color: var(--matrix-green);
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .matrix-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 65, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 65, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: -1;
+            opacity: 0.1;
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-background"></div>
+    
+    <div class="notification" id="notification">
+        <div class="notification-content">
+            <div class="notification-dot"></div>
+            <div id="notificationText"></div>
+        </div>
+    </div>
+    
+    <div class="container" id="mainContainer">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-text">Matrix Console Messenger</div>
+            </div>
+            <div class="status">
+                <div class="status-dot"></div>
+                <div class="status-text">Защищённое соединение | E2E Шифрование | SQL/XSS Защита</div>
+            </div>
+            <div class="security-shield">
+                <div class="shield-icon">🔒</div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="terminal-container">
+                <div class="console-output" id="consoleOutput"></div>
+                <div class="prompt">
+                    <span class="prompt-user" id="promptUser">guest@matrix:~$</span>
+                    <input type="text" class="prompt-input" id="commandInput" autofocus>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="panel">
+                    <div class="panel-title">Пользователь</div>
+                    <div class="user-info">
+                        <div class="user-level">
+                            <div class="level-display" id="levelBadge">⚪</div>
+                            <div class="level-info">
+                                <div id="usernameDisplay">Гость</div>
+                                <div class="level-progress">
+                                    <div class="level-progress-bar" id="levelProgress"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="levelText">Уровень: <strong>Новичок</strong></div>
+                        <div>Сообщений: <strong id="messageCount">0</strong></div>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <div class="panel-title">Группы</div>
+                    <div class="groups-list" id="groupsList">
+                        <!-- Группы будут добавлены через JS -->
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <div class="panel-title">Системные команды</div>
+                    <div class="system-commands">
+                        <div class="help-item"><span class="command">/help</span> - Справка</div>
+                        <div class="help-item"><span class="command">/clear</span> - Очистить консоль</div>
+                        <div class="help-item"><span class="command">/exit</span> - Выход</div>
+                        <div class="help-item"><span class="command">/logout</span> - Сменить пользователя</div>
+                        <div class="help-item"><span class="command">/connect</span> - Подключиться к группе</div>
+                        <div class="help-item"><span class="command">/users</span> - Список пользователей</div>
+                        <div class="help-item"><span class="command">/level</span> - Уровни</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Системные переменные
+        const user = {
+            username: "guest",
+            messageCount: 0,
+            level: 0,
+            color: "#ffffff"
+        };
+        
+        const levels = [
+            {min: 0, name: "Новичок", color: "#ffffff", class: "level-0", badge: "⚪"},
+            {min: 50, name: "Участник", color: "#00BFFF", class: "level-1", badge: "🔵"},
+            {min: 100, name: "Активный", color: "#00FF7F", class: "level-2", badge: "🟢"},
+            {min: 200, name: "Ветеран", color: "#9370DB", class: "level-3", badge: "🟣"},
+            {min: 500, name: "Эксперт", color: "#FFD700", class: "level-4", badge: "🟡"},
+            {min: 1000, name: "Легенда", color: "#FF4500", class: "level-5", badge: "🔴"},
+            {min: 5000, name: "Matrix", color: "rainbow", class: "level-6", badge: "🌈"}
+        ];
+        
+        const users = [
+            {username: "neo", messageCount: 523, online: true},
+            {username: "trinity", messageCount: 312, online: true},
+            {username: "morpheus", messageCount: 1250, online: true},
+            {username: "oracle", messageCount: 4987, online: false},
+            {username: "smith", messageCount: 89, online: false},
+            {username: "cypher", messageCount: 75, online: true}
+        ];
+        
+        const groups = [
+            {id: "MATRIX1", name: "Основной канал", description: "Общий чат для всех пользователей"},
+            {id: "HACKERS", name: "Хакерский клуб", description: "Обсуждение безопасности и программирования"},
+            {id: "AN0NYM", name: "Анонимный чат", description: "Анонимные обсуждения без регистрации"},
+            {id: "GAMERS", name: "Игровой клуб", description: "Обсуждение игр и киберспорта"},
+            {id: "CODEFX", name: "Разработчики", description: "Обсуждение программирования и технологий"}
+        ];
+        
+        let currentChannel = groups[0];
+        let privateMessages = [];
+        let isTyping = false;
+        
+        // Элементы DOM
+        const consoleOutput = document.getElementById('consoleOutput');
+        const commandInput = document.getElementById('commandInput');
+        const promptUser = document.getElementById('promptUser');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+        const levelBadge = document.getElementById('levelBadge');
+        const usernameDisplay = document.getElementById('usernameDisplay');
+        const levelText = document.getElementById('levelText');
+        const messageCount = document.getElementById('messageCount');
+        const levelProgress = document.getElementById('levelProgress');
+        const groupsList = document.getElementById('groupsList');
+        
+        // Инициализация приложения
+        function init() {
+            renderGroupsList();
+            addSystemMessage("Matrix Console Messenger v2.0");
+            addSystemMessage("Защищённое соединение установлено. Сквозное шифрование активировано.");
+            addSystemMessage("Системы безопасности инициализированы: SQL/XSS защита активна");
+            addSystemMessage("Текущий канал: " + currentChannel.name, "channel");
+            addSystemMessage("Введите /help для списка команд");
+            addSystemMessage("------------------------------------------------------------");
+            
+            updateUserDisplay();
+            
+            // Обработчик команд
+            commandInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    processCommand(commandInput.value);
+                    commandInput.value = '';
+                }
+            });
+            
+            // Симулируем активность других пользователей
+            setTimeout(simulateActivity, 5000);
+        }
+        
+        // Обработка команд
+        function processCommand(cmd) {
+            if (!cmd.trim()) return;
+            
+            addSystemMessage(`$ ${cmd}`, "command");
+            
+            const parts = cmd.split(' ');
+            const command = parts[0].toLowerCase();
+            const args = parts.slice(1);
+            
+            switch(command) {
+                case '/login':
+                    if (args.length < 1) {
+                        showError("Использование: /login [имя пользователя]");
+                        return;
+                    }
+                    loginUser(args[0]);
+                    break;
+                    
+                case '/msg':
+                    if (args.length < 2) {
+                        showError("Использование: /msg [пользователь] [сообщение]");
+                        return;
+                    }
+                    sendPrivateMessage(args[0], args.slice(1).join(' '));
+                    break;
+                    
+                case '/help':
+                    showHelp();
+                    break;
+                    
+                case '/users':
+                    showUsers();
+                    break;
+                    
+                case '/clear':
+                    clearConsole();
+                    break;
+                    
+                case '/level':
+                    showLevelInfo();
+                    break;
+                    
+                case '/color':
+                    if (args.length < 1) {
+                        showError("Использование: /color [новый цвет в HEX]");
+                        addSystemMessage("Пример: /color #FF00FF");
+                        return;
+                    }
+                    changeColor(args[0]);
+                    break;
+                    
+                case '/post':
+                    if (args.length < 1) {
+                        showError("Использование: /post [сообщение]");
+                        return;
+                    }
+                    postMessage(args.join(' '));
+                    break;
+                    
+                case '/connect':
+                    if (args.length < 1) {
+                        showConnectForm();
+                        return;
+                    }
+                    connectToGroup(args[0]);
+                    break;
+                    
+                case '/logout':
+                    logoutUser();
+                    break;
+                    
+                case '/exit':
+                    showNotification("Выход из системы... До свидания!");
+                    setTimeout(() => {
+                        addSystemMessage("Сеанс завершен. Для повторного входа обновите страницу.");
+                        commandInput.disabled = true;
+                    }, 1000);
+                    break;
+                    
+                default:
+                    showError(`Неизвестная команда: ${command}`);
+                    addSystemMessage("Введите /help для списка команд");
+            }
+        }
+        
+        // Подключение к группе
+        function connectToGroup(groupId) {
+            groupId = groupId.toUpperCase();
+            
+            // Проверка формата кода
+            if (!/^[A-Z0-9]{6}$/.test(groupId)) {
+                showError("Неверный формат кода группы. Код должен состоять из 6 символов (A-Z, 0-9)");
+                return;
+            }
+            
+            // Поиск группы
+            const group = groups.find(g => g.id === groupId);
+            
+            if (group) {
+                currentChannel = group;
+                addSystemMessage(`Успешно подключено к группе: ${group.name}`, "success");
+                addSystemMessage(`Описание: ${group.description}`, "channel");
+                showNotification(`Подключено к группе: ${group.name}`);
+                renderGroupsList();
+            } else {
+                showError(`Группа с кодом ${groupId} не найдена`);
+            }
+        }
+        
+        // Форма подключения к группе
+        function showConnectForm() {
+            addSystemMessage("Подключение к группе. Введите код группы:");
+            addSystemMessage("Доступные группы:");
+            
+            groups.forEach(group => {
+                addSystemMessage(`- <span class="matrix-code">${group.id}</span>: ${group.name}`);
+            });
+            
+            const form = document.createElement('div');
+            form.className = 'connect-form';
+            form.innerHTML = `
+                <input type="text" class="connect-input" id="groupCode" placeholder="Код группы (6 символов)" maxlength="6">
+                <button class="connect-button" onclick="submitGroupCode()">Подключиться</button>
+            `;
+            
+            consoleOutput.appendChild(form);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            
+            // Фокус на поле ввода
+            setTimeout(() => {
+                const groupCodeInput = document.getElementById('groupCode');
+                if (groupCodeInput) groupCodeInput.focus();
+            }, 100);
+        }
+        
+        // Отправка кода группы
+        function submitGroupCode() {
+            const groupCodeInput = document.getElementById('groupCode');
+            if (groupCodeInput && groupCodeInput.value) {
+                connectToGroup(groupCodeInput.value);
+            }
+        }
+        
+        // Авторизация пользователя
+        function loginUser(username) {
+            if (username.length < 3) {
+                showError("Имя пользователя должно содержать не менее 3 символов");
+                return;
+            }
+            
+            // Защита от XSS
+            username = sanitizeInput(username);
+            
+            // Проверка SQL-инъекций
+            if (detectSQLInjection(username)) {
+                showError("Обнаружена попытка SQL-инъекции! Команда отклонена.");
+                return;
+            }
+            
+            user.username = username;
+            // ИСПРАВЛЕНИЕ: начинаем с 0 сообщений
+            user.messageCount = 0;
+            updateUserLevel();
+            
+            addSystemMessage(`Добро пожаловать, ${formatUsername(user)}!`);
+            addSystemMessage(`Ваш уровень: ${levels[user.level].name}`);
+            updateUserDisplay();
+            showNotification(`Добро пожаловать, ${username}!`);
+        }
+        
+        // Выход пользователя
+        function logoutUser() {
+            user.username = "guest";
+            user.messageCount = 0;
+            user.level = 0;
+            addSystemMessage("Вы вышли из системы");
+            updateUserDisplay();
+            showNotification("Вы вышли из системы");
+        }
+        
+        // Отправка личного сообщения
+        function sendPrivateMessage(recipient, message) {
+            if (user.username === "guest") {
+                showError("Ошибка: сначала выполните вход с помощью /login");
+                return;
+            }
+            
+            // Защита от XSS
+            recipient = sanitizeInput(recipient);
+            message = sanitizeInput(message);
+            
+            // Проверка SQL-инъекций
+            if (detectSQLInjection(message) || detectSQLInjection(recipient)) {
+                showError("Обнаружена попытка SQL-инъекции! Команда отклонена.");
+                return;
+            }
+            
+            // Сохраняем сообщение
+            const pm = {
+                id: Date.now(),
+                from: user.username,
+                to: recipient,
+                message: message,
+                timestamp: new Date(),
+                isEncrypted: false
+            };
+            
+            privateMessages.push(pm);
+            
+            // Отображаем сообщение
+            const pmElement = document.createElement('div');
+            pmElement.className = 'private-message';
+            pmElement.innerHTML = `
+                <div><span class="pm-indicator">[ЛС]</span> <strong>${formatUsername(user)}</strong> → <strong>${recipient}</strong></div>
+                <div>${message}</div>
+                <div class="timestamp">${formatTime(pm.timestamp)}</div>
+            `;
+            
+            consoleOutput.appendChild(pmElement);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            
+            // Увеличиваем счетчик сообщений
+            user.messageCount++;
+            updateUserLevel();
+            updateUserDisplay();
+        }
+        
+        // Публикация сообщения в канал
+        function postMessage(message) {
+            if (user.username === "guest") {
+                showError("Ошибка: сначала выполните вход с помощью /login");
+                return;
+            }
+            
+            // Защита от XSS
+            message = sanitizeInput(message);
+            
+            // Проверка SQL-инъекций
+            if (detectSQLInjection(message)) {
+                showError("Обнаружена попытка SQL-инъекции! Команда отклонена.");
+                return;
+            }
+            
+            // Добавляем сообщение
+            const messageEl = document.createElement('div');
+            messageEl.className = 'message';
+            messageEl.innerHTML = `
+                <span class="timestamp">[${formatTime(new Date())}]</span>
+                ${formatUsername(user)}: 
+                <span class="message-content">${message}</span>
+            `;
+            
+            consoleOutput.appendChild(messageEl);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            
+            // Увеличиваем счетчик сообщений
+            user.messageCount++;
+            updateUserLevel();
+            updateUserDisplay();
+        }
+        
+        // Изменение цвета
+        function changeColor(color) {
+            if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color)) {
+                showError("Неверный формат цвета. Используйте HEX-формат (#RRGGBB)");
+                return;
+            }
+            
+            user.color = color;
+            addSystemMessage(`Цвет вашего никнейма изменён на ${color}`);
+            updateUserDisplay();
+            showNotification(`Цвет никнейма изменён на ${color}`);
+        }
+        
+        // Обновление уровня пользователя
+        function updateUserLevel() {
+            const newLevel = calculateLevel(user.messageCount);
+            
+            if (newLevel > user.level) {
+                user.level = newLevel;
+                addSystemMessage(`Поздравляем! Вы достигли нового уровня: ${levels[user.level].name}`, "achievement");
+                addSystemMessage(`Теперь ваш никнейм будет отображаться ${levels[user.level].name === "Matrix" ? "радужным" : "цветом " + levels[user.level].color}`);
+                showNotification(`Новый уровень: ${levels[user.level].name}!`);
+                updateUserDisplay();
+            }
+        }
+        
+        // Расчет уровня на основе количества сообщений
+        function calculateLevel(count) {
+            for (let i = levels.length - 1; i >= 0; i--) {
+                if (count >= levels[i].min) {
+                    return i;
+                }
+            }
+            return 0;
+        }
+        
+        // Отображение информации об уровнях
+        function showLevelInfo() {
+            addSystemMessage("Система уровней Matrix Messenger:");
+            addSystemMessage("Цвет вашего никнейма меняется по мере отправки сообщений:");
+            
+            levels.forEach(level => {
+                const levelEl = document.createElement('div');
+                levelEl.className = 'message';
+                levelEl.innerHTML = `
+                    <span class="${level.class} level-badge">${level.badge} ${level.name}</span> 
+                    - ${level.min}+ сообщений
+                `;
+                consoleOutput.appendChild(levelEl);
+            });
+            
+            addSystemMessage(`Ваш текущий уровень: ${levels[user.level].name} (${user.messageCount} сообщений)`);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        // Отображение списка пользователей
+        function showUsers() {
+            addSystemMessage("Пользователи онлайн:");
+            
+            const userListEl = document.createElement('div');
+            userListEl.className = 'user-list';
+            
+            users.forEach(u => {
+                const userLevel = calculateLevel(u.messageCount);
+                const levelInfo = levels[userLevel];
+                
+                const userEl = document.createElement('div');
+                userEl.className = 'user-tag';
+                userEl.innerHTML = `
+                    <div class="user-dot ${u.online ? 'online' : 'offline'}"></div>
+                    <span class="${levelInfo.class}" style="font-weight:bold">${u.username}</span>
+                    <span class="${levelInfo.class} level-badge">${levelInfo.badge} ${u.messageCount}</span>
+                `;
+                
+                userListEl.appendChild(userEl);
+            });
+            
+            consoleOutput.appendChild(userListEl);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        // Отображение справки
+        function showHelp() {
+            addSystemMessage("Доступные команды:");
+            
+            const helpMenu = document.createElement('div');
+            helpMenu.className = 'help-menu';
+            
+            // Команды пользователя
+            const userCommands = document.createElement('div');
+            userCommands.className = 'help-category';
+            userCommands.innerHTML = `
+                <div class="help-title">Основные команды</div>
+                <div class="help-item"><span class="command">/login [имя]</span> - Войти в систему</div>
+                <div class="help-item"><span class="command">/post [текст]</span> - Отправить сообщение</div>
+                <div class="help-item"><span class="command">/msg [польз.] [текст]</span> - Личное сообщение</div>
+                <div class="help-item"><span class="command">/color [HEX]</span> - Изменить цвет никнейма</div>
+                <div class="help-item"><span class="command">/connect [код]</span> - Подключиться к группе</div>
+            `;
+            
+            // Системные команды
+            const systemCommands = document.createElement('div');
+            systemCommands.className = 'help-category';
+            systemCommands.innerHTML = `
+                <div class="help-title">Системные команды</div>
+                <div class="help-item"><span class="command">/help</span> - Показать эту справку</div>
+                <div class="help-item"><span class="command">/users</span> - Показать пользователей</div>
+                <div class="help-item"><span class="command">/level</span> - Информация об уровнях</div>
+                <div class="help-item"><span class="command">/clear</span> - Очистить консоль</div>
+                <div class="help-item"><span class="command">/logout</span> - Сменить пользователя</div>
+                <div class="help-item"><span class="command">/exit</span> - Выход из системы</div>
+            `;
+            
+            helpMenu.appendChild(userCommands);
+            helpMenu.appendChild(systemCommands);
+            consoleOutput.appendChild(helpMenu);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        // Очистка консоли
+        function clearConsole() {
+            consoleOutput.innerHTML = '';
+            addSystemMessage("Консоль очищена");
+            addSystemMessage("------------------------------------------------------------");
+            showNotification("Консоль очищена");
+        }
+        
+        // Форматирование имени пользователя
+        function formatUsername(userObj) {
+            const levelInfo = levels[userObj.level];
+            return `<span class="${levelInfo.class}" style="font-weight:bold">${userObj.username}</span>`;
+        }
+        
+        // Добавление системного сообщения
+        function addSystemMessage(text, className = "") {
+            const messageEl = document.createElement('div');
+            messageEl.className = `message system ${className}`;
+            messageEl.innerHTML = `<span class="timestamp">[${formatTime(new Date())}]</span> ${text}`;
+            consoleOutput.appendChild(messageEl);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        // Показать ошибку с анимацией
+        function showError(text) {
+            const errorEl = document.createElement('div');
+            errorEl.className = 'message system error';
+            errorEl.innerHTML = `<span class="timestamp">[${formatTime(new Date())}]</span> ${text}`;
+            consoleOutput.appendChild(errorEl);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            
+            // Показать уведомление
+            showNotification(text, "error");
+        }
+        
+        // Обновление отображения пользователя
+        function updateUserDisplay() {
+            const levelInfo = levels[user.level];
+            
+            // Обновление бейджа уровня
+            levelBadge.className = 'level-display ' + levelInfo.class;
+            levelBadge.textContent = levelInfo.badge;
+            
+            // Обновление имени пользователя
+            usernameDisplay.innerHTML = user.username === "guest" ? "Гость" : 
+                `<span class="${levelInfo.class}">${user.username}</span>`;
+            
+            // Обновление текста уровня
+            levelText.innerHTML = `Уровень: <strong>${levelInfo.name}</strong>`;
+            
+            // Обновление счетчика сообщений
+            messageCount.textContent = user.messageCount;
+            
+            // Обновление прогресс-бара
+            const nextLevel = user.level < levels.length - 1 ? levels[user.level + 1].min : levels[user.level].min * 2;
+            const progress = Math.min(100, (user.messageCount - levels[user.level].min) / (nextLevel - levels[user.level].min) * 100);
+            levelProgress.style.width = progress + '%';
+            
+            // Обновление приглашения
+            if (user.username === "guest") {
+                promptUser.textContent = "guest@matrix:~$";
+            } else {
+                promptUser.innerHTML = `<span class="${levelInfo.class}">${user.username}@matrix</span>:~$`;
+            }
+        }
+        
+        // Форматирование времени
+        function formatTime(date) {
+            return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+        
+        // Защита от XSS - санитизация ввода
+        function sanitizeInput(input) {
+            return input
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+        
+        // Защита от SQL-инъекций
+        function detectSQLInjection(input) {
+            const sqlKeywords = [
+                'select', 'insert', 'update', 'delete', 'drop', 'truncate', 
+                'create', 'alter', 'exec', 'xp_', '--', ';', '/*', '*/', 'union'
+            ];
+            
+            const lowerInput = input.toLowerCase();
+            return sqlKeywords.some(keyword => lowerInput.includes(keyword));
+        }
+        
+        // Показать уведомление
+        function showNotification(text, type = "success") {
+            notificationText.innerHTML = text;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Симулировать активность других пользователей
+        function simulateActivity() {
+            if (Math.random() > 0.3) return;
+            
+            const activeUsers = users.filter(u => u.online && u.username !== user.username);
+            if (activeUsers.length === 0) return;
+            
+            const randomUser = activeUsers[Math.floor(Math.random() * activeUsers.length)];
+            const messages = [
+                "Привет всем! Как дела?",
+                "Кто-нибудь работал с Matrix SDK?",
+                "Только что обнаружил классную библиотеку для шифрования",
+                "Помогите с настройкой сервера...",
+                "Смотрю последний Matrix Reloaded, отличный фильм!",
+                "Есть идеи для нового проекта?",
+                "Нашёл баг в системе безопасности, обсуждаем?",
+                "Как вам новый интерфейс мессенджера?"
+            ];
+            
+            const message = messages[Math.floor(Math.random() * messages.length)];
+            
+            // Показать индикатор набора
+            simulateTyping(randomUser, message);
+            
+            // Следующая симуляция через 5-10 секунд
+            setTimeout(simulateActivity, 5000 + Math.random() * 5000);
+        }
+        
+        // Анимация печати сообщения
+        function simulateTyping(userObj, message) {
+            // Показать индикатор набора
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <span style="margin-left:10px">${userObj.username} печатает...</span>
+            `;
+            
+            consoleOutput.appendChild(typingIndicator);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            
+            // Через 1.5-2.5 секунды показать сообщение
+            setTimeout(() => {
+                typingIndicator.remove();
+                
+                const messageEl = document.createElement('div');
+                messageEl.className = `message`;
+                messageEl.innerHTML = `
+                    <span class="timestamp">[${formatTime(new Date())}]</span>
+                    ${formatUsername(userObj)}: 
+                    <span class="message-content">${message}</span>
+                `;
+                
+                consoleOutput.appendChild(messageEl);
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }, 1500 + Math.random() * 1000);
+        }
+        
+        // Рендер списка групп
+        function renderGroupsList() {
+            groupsList.innerHTML = '';
+            
+            groups.forEach(group => {
+                const groupEl = document.createElement('div');
+                groupEl.className = `group-item ${group.id === currentChannel.id ? 'active' : ''}`;
+                groupEl.innerHTML = `
+                    <div class="group-name">${group.name}</div>
+                    <div class="group-id">ID: <span class="matrix-code">${group.id}</span></div>
+                `;
+                groupEl.addEventListener('click', () => connectToGroup(group.id));
+                groupsList.appendChild(groupEl);
+            });
+        }
+        
+        // Запуск приложения
+        window.onload = init;
+        
+        // Глобальные функции для взаимодействия с UI
+        window.submitGroupCode = submitGroupCode;
+    </script>
+</body>
+</html>
